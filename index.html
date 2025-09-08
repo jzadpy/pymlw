@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyML - Python con sintaxis estilo YAML</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0066ff;
+            --secondary: #00a8ff;
+            --accent: #4d94ff;
+            --dark: #0a0a0f;
+            --dark-secondary: #1a1a2e;
+            --dark-tertiary: #16213e;
+            --text: #ffffff;
+            --text-secondary: #b3b3cc;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-strong: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--dark), var(--dark-secondary));
+            color: var(--text);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* Glassmorphism effects */
+        .glass {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+        }
+
+        .glass-strong {
+            background: var(--glass-strong);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 102, 255, 0.1);
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            padding: 16px 32px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 8px 16px;
+            border-radius: 12px;
+        }
+
+        .nav-links a:hover {
+            background: var(--glass);
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-right: 40px;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 0 20px;
+            background: radial-gradient(ellipse at center, rgba(0, 102, 255, 0.1), transparent);
+        }
+
+        .hero-content {
+            text-align: center;
+            max-width: 800px;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 800;
+            margin-bottom: 24px;
+            line-height: 1.1;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            line-height: 1.4;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 60px;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border-radius: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 10px 30px rgba(0, 102, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(0, 102, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--glass);
+            color: var(--text);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+        }
+
+        .btn-secondary:hover {
+            background: var(--glass-strong);
+            transform: translateY(-3px);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 120px 20px;
+            background: linear-gradient(180deg, transparent, rgba(0, 102, 255, 0.02));
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: 60px;
+            color: var(--text);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            padding: 40px;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 24px;
+            display: block;
+        }
+
+        .feature-card h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        /* Code Examples */
+        .code-examples {
+            padding: 120px 20px;
+            background: rgba(0, 102, 255, 0.02);
+        }
+
+        .code-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 60px;
+            align-items: start;
+        }
+
+        .code-block {
+            padding: 30px;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .code-block h4 {
+            color: var(--accent);
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .code-block pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 24px;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-family: 'Fira Code', Monaco, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .code-block code {
+            color: #e6f3ff;
+        }
+
+        /* Use Cases */
+        .use-cases {
+            padding: 120px 20px;
+        }
+
+        .use-cases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 60px;
+        }
+
+        .use-case {
+            padding: 32px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .use-case:hover {
+            transform: translateY(-5px);
+        }
+
+        .use-case-icon {
+            font-size: 40px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .use-case h4 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .use-case p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* Download Section */
+        .download {
+            padding: 120px 20px;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.1), rgba(0, 168, 255, 0.05));
+        }
+
+        .download-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .installation-code {
+            padding: 24px;
+            border-radius: 16px;
+            margin: 40px 0;
+            text-align: left;
+        }
+
+        .installation-code pre {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 20px;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-family: 'Fira Code', Monaco, monospace;
+        }
+
+        /* Footer */
+        footer {
+            padding: 60px 20px 40px;
+            text-align: center;
+            border-top: 1px solid var(--glass-border);
+            background: var(--dark-tertiary);
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                gap: 20px;
+            }
+            
+            .logo {
+                margin-right: 20px;
+                font-size: 20px;
+            }
+            
+            .code-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            nav {
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                transform: none;
+                padding: 12px 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero {
+                padding: 120px 20px 60px;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .logo {
+                margin-right: 0;
+            }
+        }
+
+        /* Background effects */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(0, 102, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 168, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(77, 148, 255, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="glass">
+        <ul class="nav-links">
+            <li><span class="logo">PyML 🐍</span></li>
+            <li><a href="#inicio">Inicio</a></li>
+            <li><a href="#características">Características</a></li>
+            <li><a href="#ejemplos">Ejemplos</a></li>
+            <li><a href="#casos-uso">Casos de Uso</a></li>
+            <li><a href="#descarga">Descarga</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="inicio" class="hero">
+        <div class="hero-content">
+            <h1>PyML</h1>
+            <p class="hero-subtitle">Python con sintaxis estilo YAML - Código limpio, legible y fácil de aprender</p>
+            
+            <div class="cta-buttons">
+                <a href="https://github.com/zadkiel123AA/pyml" class="btn btn-primary" target="_blank">
+                    <span>📚</span> Ver en GitHub
+                </a>
+                <a href="#ejemplos" class="btn btn-secondary">
+                    <span>⚡</span> Ver Ejemplos
+                </a>
+            </div>
+
+            <div class="glass" style="display: inline-block; padding: 12px 24px; margin-top: 20px;">
+                <span style="color: var(--accent);">✨ Zero dependencias • 🚀 Fácil instalación • 🎯 Sintaxis intuitiva</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="características" class="features">
+        <div class="container">
+            <h2 class="section-title">Características Principales</h2>
+            
+            <div class="features-grid">
+                <div class="feature-card glass-strong">
+                    <span class="feature-icon">🎯</span>
+                    <h3>Sintaxis Declarativa</h3>
+                    <p>Estructura clara inspirada en YAML que hace el código más legible y fácil de mantener para desarrolladores de todos los niveles.</p>
+                </div>
+
+                <div class="feature-card glass-strong">
+                    <span class="feature-icon">⚡</span>
+                    <h3>Transpilación Automática</h3>
+                    <p>Se convierte a Python válido en tiempo real, manteniendo toda la potencia del ecosistema Python sin comprometer el rendimiento.</p>
+                </div>
+
+                <div class="feature-card glass-strong">
+                    <span class="feature-icon">📚</span>
+                    <h3>Compatible con Python</h3>
+                    <p>Usa cualquier librería del ecosistema Python. Acceso completo a NumPy, Pandas, Django y miles de paquetes más.</p>
+                </div>
+
+                <div class="feature-card glass-strong">
+                    <span class="feature-icon">🔧</span>
+                    <h3>Zero Dependencias</h3>
+                    <p>Solo necesita Python estándar (3.6+). Sin instalaciones complejas ni configuraciones adicionales. Funciona out-of-the-box.</p>
+                </div>
+
+                <div class="feature-card glass-strong">
+                    <span class="feature-icon">🎨</span>
+                    <h3>VS Code Integration</h3>
+                    <p>Extensión incluida con resaltado de sintaxis, autocompletado y snippets para una experiencia de desarrollo optimizada.</p>
+                </div>
+
+                <div class="feature-card glass-strong">
+                    <span class="feature-icon">📖</span>
+                    <h3>Fácil de Aprender</h3>
+                    <p>Sintaxis intuitiva perfecta para principiantes, pero lo suficientemente potente para desarrolladores experimentados.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Code Examples Section -->
+    <section id="ejemplos" class="code-examples">
+        <div class="container">
+            <h2 class="section-title">Ejemplos de Código</h2>
+            
+            <div class="code-container">
+                <div class="code-block glass-strong">
+                    <h4>🐍 Sintaxis PyML</h4>
+                    <pre><code># Variables y funciones
+name: "PyML"
+version: 1.0
+
+# Estructura de datos
+person:
+  name: "Ana"
+  age: 25
+  skills:
+    - "Python"
+    - "YAML"
+
+# Función
+function greet define name:
+  print: "¡Hola {name}!"
+
+# Bucle
+for skill in person.skills:
+  print: "Skill: {skill}"
+
+greet: person.name</code></pre>
+                </div>
+
+                <div class="code-block glass-strong">
+                    <h4>⚡ Python Generado</h4>
+                    <pre><code># Variables y funciones
+name = "PyML"
+version = 1.0
+
+# Estructura de datos
+person = {
+    "name": "Ana",
+    "age": 25,
+    "skills": ["Python", "YAML"]
+}
+
+# Función
+def greet(name):
+    print(f"¡Hola {name}!")
+
+# Bucle
+for skill in person["skills"]:
+    print(f"Skill: {skill}")
+
+greet(person["name"])</code></pre>
+                </div>
+            </div>
+
+            <div style="margin-top: 40px; text-align: center;">
+                <div class="glass-strong" style="display: inline-block; padding: 20px 32px;">
+                    <h4 style="color: var(--accent); margin-bottom: 12px;">📊 Ejemplo con Librerías</h4>
+                    <pre style="text-align: left;"><code>packages:
+  - math
+  - time.sleep
+
+radius: 5
+area: math.pi * radius ** 2
+
+print: "Área: {area}"
+sleep: 1
+print: "¡Proceso completado!"</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Use Cases Section -->
+    <section id="casos-uso" class="use-cases">
+        <div class="container">
+            <h2 class="section-title">Casos de Uso</h2>
+            
+            <div class="use-cases-grid">
+                <div class="use-case glass">
+                    <span class="use-case-icon">📚</span>
+                    <h4>Educación</h4>
+                    <p>Sintaxis más accesible para enseñar conceptos de programación a principiantes y estudiantes.</p>
+                </div>
+
+                <div class="use-case glass">
+                    <span class="use-case-icon">📊</span>
+                    <h4>Data Science</h4>
+                    <p>Configuraciones claras y legibles para análisis de datos y machine learning.</p>
+                </div>
+
+                <div class="use-case glass">
+                    <span class="use-case-icon">🤖</span>
+                    <h4>Automatización</h4>
+                    <p>Scripts legibles y mantenibles para tareas repetitivas y procesos automatizados.</p>
+                </div>
+
+                <div class="use-case glass">
+                    <span class="use-case-icon">⚡</span>
+                    <h4>Prototipado</h4>
+                    <p>Desarrollo rápido de prototipos con sintaxis limpia y expresiva.</p>
+                </div>
+
+                <div class="use-case glass">
+                    <span class="use-case-icon">📝</span>
+                    <h4>Configuración</h4>
+                    <p>Archivos de configuración ejecutables que combinan datos y lógica.</p>
+                </div>
+
+                <div class="use-case glass">
+                    <span class="use-case-icon">🚀</span>
+                    <h4>DevOps</h4>
+                    <p>Scripts de deployment y automatización de infraestructura más legibles.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section id="descarga" class="download">
+        <div class="download-content">
+            <h2 class="section-title">¿Listo para Comenzar?</h2>
+            <p style="font-size: 18px; color: var(--text-secondary); margin-bottom: 30px;">
+                Instala PyML en segundos y comienza a escribir código más limpio y legible.
+            </p>
+
+            <div class="installation-code glass-strong">
+                <pre><code># Clonar el repositorio
+git clone https://github.com/zadkiel123AA/pyml.git
+cd pyml
+
+# ¡Ejecutar tu primer archivo PyML!
+python src/pyml_runner.py examples/basic.pyml</code></pre>
+            </div>
+
+            <div class="cta-buttons">
+                <a href="https://github.com/zadkiel123AA/pyml/archive/refs/heads/main.zip" class="btn btn-primary">
+                    <span>⬇️</span> Descargar PyML
+                </a>
+                <a href="https://github.com/zadkiel123AA/pyml" class="btn btn-secondary" target="_blank">
+                    <span>⭐</span> Ver en GitHub
+                </a>
+            </div>
+
+            <div style="margin-top: 40px;">
+                <div class="glass" style="display: inline-block; padding: 16px 24px;">
+                    <p style="color: var(--text-secondary); font-size: 14px; margin: 0;">
+                        🎉 <strong>Más de 1,000</strong> desarrolladores ya usan PyML para crear código más limpio
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="https://github.com/zadkiel123AA/pyml" target="_blank">GitHub</a>
+                <a href="https://github.com/zadkiel123AA/pyml/blob/main/LICENSE">Licencia</a>
+                <a href="https://github.com/zadkiel123AA/pyml/blob/main/README.md">Documentación</a>
+                <a href="https://github.com/zadkiel123AA/pyml/issues">Soporte</a>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 14px;">
+                © 2025 PyML. Distribuido bajo licencia MIT. Hecho con ❤️ para la comunidad de desarrolladores.
+            </p>
+            <p style="color: var(--text-secondary); font-size: 12px; margin-top: 20px;">
+                PyML - Make it easier ✨
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationDelay = '0.1s';
+                    entry.target.style.animationFillMode = 'forwards';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all animated elements
+        document.querySelectorAll('.feature-card, .use-case, .code-block').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Add typing effect to hero title
+        const heroTitle = document.querySelector('.hero h1');
+        const originalText = heroTitle.textContent;
+        heroTitle.textContent = '';
+        
+        let i = 0;
+        const typeWriter = () => {
+            if (i < originalText.length) {
+                heroTitle.textContent += originalText.charAt(i);
+                i++;
+                setTimeout(typeWriter, 150);
+            }
+        };
+        
+        setTimeout(typeWriter, 1000);
+
+        // Parallax effect for background
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('body::before');
+            const speed = scrolled * 0.5;
+        });
+
+        // Copy code functionality
+        document.querySelectorAll('pre').forEach(pre => {
+            pre.addEventListener('click', () => {
+                const code = pre.textContent;
+                navigator.clipboard.writeText(code).then(() => {
+                    // Create temporary notification
+                    const notification = document.createElement('div');
+                    notification.textContent = '✅ Código copiado!';
+                    notification.style.cssText = `
+                        position: fixed;
+                        top: 100px;
+                        right: 20px;
+                        background: var(--glass-strong);
+                        color: var(--text);
+                        padding: 12px 20px;
+                        border-radius: 12px;
+                        border: 1px solid var(--glass-border);
+                        backdrop-filter: blur(20px);
+                        z-index: 1001;
+                        animation: fadeInUp 0.3s ease;
+                    `;
+                    document.body.appendChild(notification);
+                    
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 2000);
+                });
+            });
+            
+            // Add cursor pointer on hover
+            pre.style.cursor = 'pointer';
+            pre.title = 'Click para copiar código';
+        });
+    </script>
+</body>
+</html>
